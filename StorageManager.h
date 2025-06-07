@@ -1,6 +1,7 @@
 #ifndef STORAGEMANAGER_H
 #define STORAGEMANAGER_H
 
+
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -20,58 +21,59 @@ public:
 
 class StoredItem {
 private:
-    std::string uid;
-    std::string desc;
-    std::string loc;
+    std::string id;
+    std::string description;
+    std::string location;
 
 public:
-    StoredItem(std::string u, std::string d, std::string l)
-        : uid(u), desc(d), loc(l) {}
+    StoredItem(std::string i, std::string d, std::string l)
+        : id(i), description(d), location(l) {}
 
-    std::string getId() const { return uid; }
-    std::string getDescription() const { return desc; }
-    std::string getLocation() const { return loc; }
+    std::string getId() const { return id; }
+    std::string getDescription() const { return description; }
+    std::string getLocation() const { return location; }
 };
 
 class StorageManager {
 private:
-    std::unordered_map<std::string, std::shared_ptr<StoredItem>> idMap;
-    std::map<std::string, std::shared_ptr<StoredItem>> descMap;
+    std::unordered_map<std::string, std::shared_ptr<StoredItem>> itemById;
+    std::map<std::string, std::shared_ptr<StoredItem>> itemByDescription;
 
 public:
-    void addItem(const std::shared_ptr<StoredItem>& obj) {
-        if (idMap.find(obj->getId()) != idMap.end()) {
-            throw DuplicateItemException("Item with ID " + obj->getId() + " already exists.");
+    void addItem(const std::shared_ptr<StoredItem>& item) {
+        if (itemById.find(item->getId()) != itemById.end()) {
+            throw DuplicateItemException("Item with ID " + item->getId() + " already exists.");
         }
-        idMap[obj->getId()] = obj;
-        descMap[obj->getDescription()] = obj;
+        itemById[item->getId()] = item;
+        itemByDescription[item->getDescription()] = item;
     }
 
-    std::shared_ptr<StoredItem> findById(const std::string& uid) const {
-        auto itr = idMap.find(uid);
-        if (itr == idMap.end()) {
-            throw ItemNotFoundException("Item with ID " + uid + " not found.");
+    std::shared_ptr<StoredItem> findById(const std::string& id) const {
+        auto it = itemById.find(id);
+        if (it == itemById.end()) {
+            throw ItemNotFoundException("Item with ID " + id + " not found.");
         }
-        return itr->second;
+        return it->second;
     }
 
-    void removeItem(const std::string& uid) {
-        auto itr = idMap.find(uid);
-        if (itr == idMap.end()) {
-            throw ItemNotFoundException("Item with ID " + uid + " not found.");
+    void removeItem(const std::string& id) {
+        auto it = itemById.find(id);
+        if (it == itemById.end()) {
+            throw ItemNotFoundException("Item with ID " + id + " not found.");
         }
-        std::string descKey = itr->second->getDescription();
-        idMap.erase(itr);
-        descMap.erase(descKey);
+        std::string desc = it->second->getDescription();
+        itemById.erase(it);
+        itemByDescription.erase(desc);
     }
 
     std::vector<std::shared_ptr<StoredItem>> listItemsByDescription() const {
-        std::vector<std::shared_ptr<StoredItem>> result;
-        for (const auto& entry : descMap) {
-            result.push_back(entry.second);
+        std::vector<std::shared_ptr<StoredItem>> items;
+        for (const auto& pair : itemByDescription) {
+            items.push_back(pair.second);
         }
-        return result;
+        return items;
     }
 };
+
 
 #endif // STORAGEMANAGER_H
