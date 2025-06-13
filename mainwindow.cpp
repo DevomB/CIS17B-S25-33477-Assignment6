@@ -6,6 +6,9 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -59,6 +62,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(addBtn, &QPushButton::clicked, this, &MainWindow::onAddItemClicked);
     connect(findBtn, &QPushButton::clicked, this, &MainWindow::onFindItemClicked);
     connect(removeBtn, &QPushButton::clicked, this, &MainWindow::onRemoveItemClicked);
+
+    // Menus
+    QMenu *fileMenu = menuBar()->addMenu("File");
+    QAction *exitAction = new QAction("Exit", this);
+    fileMenu->addAction(exitAction);
+    connect(exitAction, &QAction::triggered, this, &MainWindow::close);
+
+    QMenu *helpMenu = menuBar()->addMenu("Help");
+    QAction *aboutAction = new QAction("About", this);
+    helpMenu->addAction(aboutAction);
+    connect(aboutAction, &QAction::triggered, this, [this]() {
+        QMessageBox::about(this, "About", "Created by: Devom Brahmbhatt\nAssignment: CIS17B -- GUI Assignment Congo Manager");
+    });
 }
 
 MainWindow::~MainWindow() {
